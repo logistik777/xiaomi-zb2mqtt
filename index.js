@@ -59,18 +59,16 @@ shepherd.on('ind', function(msg) {
                 dev = msg.endpoints[0].device;
                 devClassId = msg.endpoints[0].devId;
                 dev_id = msg.endpoints[0].device.ieeeAddr.substr(2);
-                topic += dev_id;
-                pl = 1;
+                pl=1;
                 switch (msg.data.cid) {
                     case 'ssIasZone':
-                          if (msg.data.zoneStatus == 1) {
-                           topic += "/leak";
-                           pl = "true";
+                        // leak wet/gas detected
+                        if (msg.data.zoneStatus == 1) {
+                            updateState(dev_id, 'detected', true, {type: 'boolean'});
                         } else {
-                            topic += "/leak";
-                            pl = "false";
+                            updateState(dev_id, 'detected', false, {type: 'boolean'});
                         }
-                        break;
+                        break;    
                 }
                 break;
         //case 'devChange':
@@ -87,8 +85,14 @@ shepherd.on('ind', function(msg) {
                 //if (modelId) modelId = modelId.replace("\u0000", "");
 
             switch (msg.data.cid) {
+	        case 'lightingColorCtrl':
+                        updateState(dev_id, 'colortemp', msg.data.data['colorTemperature'], {type: 'number', write: true});
+                        break;
+                case 'genLevelCtrl':
+                        updateState(dev_id, 'level', msg.data.data['currentLevel'], {type: 'number', write: true});
+                        break;
 		case 'genBasic':
-                        var batteryData;
+                       var batteryData;
                         // for new Aqara sensor
                         if (msg.data.data['65281']) {
                             batteryData = msg.data.data['65281']['1'];
@@ -98,60 +102,52 @@ shepherd.on('ind', function(msg) {
                             batteryData = msg.data.data['65282']['1'].elmVal;
                         }
                         if (batteryData != undefined) {
-                             topic += "/battery";
-                             pl = (batteryData-2700)/5;
+                            updateState(dev_id, 'voltage', batteryData / 1000, {type: 'number', unit: 'v'});  // voltage
+                            updateState(dev_id, 'battery', (batteryData - 2700) / 5, {type: 'number', unit: '%'});  // percent
                         }
                         break;
                 case 'genOnOff':  // various switches
                     topic += '/' + msg.endpoints[0].epId;
                     pl = msg.data.data['onOff'];
-		// IKEA TRADFRI bulb and FLOALT panel WS
-                if (dev.modelId && (dev.modelId.indexOf('TRADFRI bulb') !== -1 ||
-                    dev.modelId.indexOf('FLOALT panel WS') !== -1)) {
-                     pl = undefined;
-                        if (msg.data.data['onOff'] == 1) {
-                        topic += "/state";
-			pl = "true";
-                        } else {
-                        topic += "/state";
-			pl = "false";
+		       // IKEA TRADFRI bulb and FLOALT panel WS
+                        if (dev.modelId && (dev.modelId.indexOf('TRADFRI bulb') !== -1 ||
+                                            dev.modelId.indexOf('FLOALT panel WS') !== -1)) {
+                            pl = undefined;
+                            if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'state', true, {type: 'boolean', write: true});
+                            } else {
+                                updateState(dev_id, 'state', false, {type: 'boolean', write: true});
                             }
                         }
-	        if (dev.modelId && dev.modelId.indexOf('lumi.sensor_magnet') >= 0) {
-                       pl = undefined;
-                         if (msg.data.data['onOff'] == 1) {
-                         pl = "true";
+                        if (dev.modelId && dev.modelId.indexOf('lumi.sensor_magnet') >= 0) {
+                            pl = undefined;
+                            if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'contact', true, {type: 'boolean'});
                             } else {
-                         pl = "false";
+                                updateState(dev_id, 'contact', false, {type: 'boolean'});
                             }
                         }
-		if (dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
-                      pl = undefined;
-                        if (msg.data.data['onOff'] == 1) {
-                        topic += "/state";
-		        pl = "true";
+                        if (dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
+                            pl = undefined;
+                            if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'state', true, {type: 'boolean', write: true});
                             } else {
-                        topic += "/state";
-			pl = "false";
+                                updateState(dev_id, 'state', false, {type: 'boolean', write: true});
                             }
                         }
-                if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_ln1') !== -1) {
-                        if (msg.data.data['onOff'] == 1) {
-                        topic += "/state";
-	                pl = "true";        
+                        if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_ln1') !== -1) {
+                            if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'state', true, {type: 'boolean', write: true});
                             } else {
-                        topic += "/state";
-			pl = "false";
+                                updateState(dev_id, 'state', false, {type: 'boolean', write: true});
                             }
                         }
-		if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
-                        pl = undefined;
-                        if (msg.data.data['onOff'] == 1) {
-                        topic += "/state";
-			pl = "true";
+                        if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
+                            pl = undefined;
+                            if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'state', true, {type: 'boolean', write: true});
                             } else {
-                        topic += "/state";
-			pl = "false";
+                                updateState(dev_id, 'state', false, {type: 'boolean', write: true});
                             }
                         }
                  // WXKG02LM
@@ -211,18 +207,17 @@ shepherd.on('ind', function(msg) {
                         }
 		break;
                 case 'msTemperatureMeasurement':  // Aqara Temperature/Humidity
-                    topic += "/temperature";
-                    pl = parseFloat(msg.data.data['measuredValue']) / 100.0;
-                    break;
-                case 'msRelativeHumidity':
-                    topic += "/humidity";
-                    pl = parseFloat(msg.data.data['measuredValue']) / 100.0;
-                    break;
-                case 'msPressureMeasurement':
-                    topic += "/pressure";
-                    pl = parseFloat(msg.data.data['16']) / 10.0;
-                    break;
-		 case 'msOccupancySensing': // motion sensor
+                        updateState(dev_id, "temperature", parseFloat(msg.data.data['measuredValue']) / 100.0, {type: 'number', unit: 'º'});
+                        break;
+                    case 'msRelativeHumidity':
+                        topic = "humidity";
+                        pl = parseFloat(msg.data.data['measuredValue']) / 100.0;
+                        break;
+                    case 'msPressureMeasurement':
+                        topic = "pressure";
+                        pl = parseFloat(msg.data.data['16']) / 10.0;
+                        break;
+                    case 'msOccupancySensing': // motion sensor
                         if (msg.data.data['occupancy'] == 1) {
                             updateState(dev_id, "occupancy", true, {type: 'boolean'});
                             if (timers[dev_id+'no_motion']) {
@@ -252,8 +247,8 @@ shepherd.on('ind', function(msg) {
                                 delete timers[dev_id+'in_motion'];
                             }
                         }
-		break;
-                case 'msIlluminanceMeasurement':
+                        break;
+                    case 'msIlluminanceMeasurement':
                         topic = "illuminance";
                         pl = msg.data.data['measuredValue'];
                         break;
@@ -343,64 +338,36 @@ shepherd.on('ind', function(msg) {
             }
 
 		switch (true) {
-
                     case (dev.modelId == 'lumi.sensor_switch.aq2'): // WXKG11LM switch
-
                     case ((msg.endpoints[0].devId == 260) && (dev.modelId && dev.modelId.indexOf('lumi.sensor_magnet') < 0)): // WXKG01LM switch
-
                         if (msg.data.data['onOff'] == 0) { // click down
-
                             perfy.start(msg.endpoints[0].device.ieeeAddr); // start timer
-
                             pl = null; // do not send mqtt message
-
                         } else if (msg.data.data['onOff'] == 1) { // click release
-
                             if (perfy.exists(msg.endpoints[0].device.ieeeAddr)) { // do we have timer running
-
                                 var clicktime = perfy.end(msg.endpoints[0].device.ieeeAddr); // end timer
-
                                 if (clicktime.seconds > 0 || clicktime.milliseconds > 240) { // seems like a long press so ..
-
                                     //topic = topic.slice(0,-1) + '2'; //change topic to 2
-
-                                    pl = 'long_click';
-
-                                    topic = topic + '/long';
-
+                                    updateStateWithTimeout(dev_id, 'long_click', true, {type: 'boolean'}, 300, false);
+                                    topic = topic + '_elapsed';
                                     //pl = clicktime.seconds + Math.floor(clicktime.milliseconds) + ''; // and payload to elapsed seconds
-
                                     pl = clicktime.seconds;
-
                                 }
-
                             }
-
                         } else if (msg.data.data['32768']) { // multiple clicks
-
                             if (msg.data.data['32768'] == 2) {
-
-                               pl = 'dual_click';
-
+                                updateStateWithTimeout(dev_id, 'double_click', true, {type: 'boolean'}, 300, false);
                             }
-
                             if (msg.data.data['32768'] == 3) {
-
-                                pl = 'triple_click';
-
+                                updateStateWithTimeout(dev_id, 'triple_click', true, {type: 'boolean'}, 300, false);
                             }
-
                             if (msg.data.data['32768'] == 4) {
-
-                                pl= 'quad_click';
-
+                                updateStateWithTimeout(dev_id, 'quad_click', true, {type: 'boolean'}, 300, false);
                             }
-
                         }
-
                 }
 
-
+                break;
 
             break;
         default:
