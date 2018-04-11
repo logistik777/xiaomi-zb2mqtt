@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AndrewLinden/xiaomi-zb2mqtt.git"
+    "url": "git+https://github.com/starkun/xiaomi-zb2mqtt.git"
   },
   "keywords": [
     "xiaomi",
@@ -19,12 +19,12 @@
   "author": "Andrew Linden",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/AndrewLinden/xiaomi-zb2mqtt/issues"
+    "url": "https://github.com/starkun/xiaomi-zb2mqtt/issues"
   },
-  "homepage": "https://github.com/AndrewLinden/xiaomi-zb2mqtt#readme",
+  "homepage": "https://github.com/starkun/xiaomi-zb2mqtt#readme",
   "dependencies": {
     "mqtt": "^2.13.0",
     "perfy": "^1.1.2",
-    "zigbee-shepherd": "git+https://github.com/zigbeer/zigbee-shepherd.git",
+    "zigbee-shepherd": "git+https://github.com/kirovilya/zigbee-shepherd.git"
   }
 }
