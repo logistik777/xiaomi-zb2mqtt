@@ -187,24 +187,24 @@ shepherd.on('ind', function(msg) {
                                 }
                             } else if (devClassId == 0 && epId == 5) { // right pressed
                                 if (pl == 0) { // down
-                                    topic +="right_click";
+                                    topic +="/right_click";
 				    pl = "false";
                                 } else if (pl == 1) { // up
-                                    topic +="right_click";
+                                    topic +="/right_click";
 				    pl = "true";
                                 } else if (pl == 2) { // double 
-                                    topic +="right_double_click";
+                                    topic +="/right_double_click";
 			 	    pl = "true";
                                 }
                             } else if (devClassId == 0 && epId == 6) { // both pressed
                                 if (pl == 0) { // down
-                                    topic +="both_click";
+                                    topic +="/both_click";
 					pl = "false";
                                } else if (pl == 1) { // up
-                                    topic +="both_click";
+                                    topic +="/both_click";
 					pl = "true";
                                 } else if (pl == 2) { // double 
-                                    topic +="both_double_click";
+                                    topic +="/both_double_click";
 					pl = "true";
                                }
                             }
@@ -261,68 +261,58 @@ shepherd.on('ind', function(msg) {
                         topic = "illuminance";
                         pl = msg.data.data['measuredValue'];
                         break;
-              //  case 'genMultistateInput':
-              //          /*
-              //              +---+
-              //              | 2 |
-              //          +---+---+---+
-              //          | 4 | 0 | 1 |
-              //          +---+---+---+
-              //              |M5I|
-              //              +---+
-              //              | 3 |
-              //              +---+
-//
-  //                      Side 5 is with the MI logo, side 3 contains the battery door.
-    //                    presentValue = 0 = shake
-      //                  presentValue = 2 = wakeup 
-        //                presentValue = 3 = fly/fall
-          //              presentValue = y + x * 8 + 64 = 90ยบ Flip from side x on top to side y on top
-            //            presentValue = x + 128 = 180ยบ flip to side x on top
-              //          presentValue = x + 256 = push/slide cube while side x is on top
-                //        presentValue = x + 512 = double tap while side x is on top
-                  //      */
-                //        var v = msg.data.data['presentValue'];
-               //         switch (true) {
-              //              case (v == 0):
-              //               topic += "/shake";
-				//			 pl = "true";
-                    //            break;
-                  //          case (v == 2):
-               //               topic += "/wakeup";
-			//				  pl = "true";
-            //                    break;
-             //               case (v == 3):
-            //                  topic += "/fall";
-		//					  pl = "true";
-          //                      break;
-                  //          case (v >= 512): // double tap
-                 //             topic += "/tap";
-				//			  pl = "true";
-                 //             topic += "/tap_side"; 
-				//			  pl = "v-512";
-               //                 break;
-              //              case (v >= 256): // slide
-              //                topic += "/slide";
-			//				  pl = "true";
-          //                    topic += "/slide_side";
-		//					  pl = "v-256";
-           //                     break;
-          //                  case (v >= 128): // 180 flip
-         //                       topic += "/flip180";
-		//						pl = true;
-         //                       topic += "/flip180_side";
-		//						pl = "v-128";
-           //                     break;
-          //                  case (v >= 64): // 90 flip
-         //                       topic += "/flip90";
-		//						pl = "true";
-         //                       //topic += "flip90_from";
-		//						//pl = Math.floor((v-64) / 8);
-          //                      //topic +="flip90_to', v % 8, {type: 'number'});
-          //                      break;
-          //              }
-          //              break;
+                case 'genMultistateInput':
+                        /*
+                            +---+
+                            | 2 |
+                        +---+---+---+
+                        | 4 | 0 | 1 |
+                        +---+---+---+
+                            |M5I|
+                            +---+
+                            | 3 |
+                            +---+
+
+                        Side 5 is with the MI logo, side 3 contains the battery door.
+                        presentValue = 0 = shake
+                        presentValue = 2 = wakeup 
+                        presentValue = 3 = fly/fall
+                        presentValue = y + x * 8 + 64 = 90ยบ Flip from side x on top to side y on top
+                        presentValue = x + 128 = 180ยบ flip to side x on top
+                        presentValue = x + 256 = push/slide cube while side x is on top
+                        presentValue = x + 512 = double tap while side x is on top
+                       */
+                        var v = msg.data.data['presentValue'];
+                        switch (true) {
+                            case (v == 0):
+                                updateStateWithTimeout(dev_id, 'shake', true, {type: 'boolean'}, 300, false);
+                                break;
+                            case (v == 2):
+                                updateStateWithTimeout(dev_id, 'wakeup', true, {type: 'boolean'}, 300, false);
+                                break;
+                            case (v == 3):
+                                updateStateWithTimeout(dev_id, 'fall', true, {type: 'boolean'}, 300, false);
+                                break;
+                            case (v >= 512): // double tap
+                                updateStateWithTimeout(dev_id, 'tap', true, {type: 'boolean'}, 300, false);
+                                topic +="/tap_side"; pl = v-512;
+                                break;
+                            case (v >= 256): // slide
+                                updateStateWithTimeout(dev_id, 'slide', true, {type: 'boolean'}, 300, false);
+                                topic +="/slide_side"; pl = v-256;
+                                break;
+                            case (v >= 128): // 180 flip
+                                updateStateWithTimeout(dev_id, 'flip180', true, {type: 'boolean'}, 300, false);
+                                topic +="/flip180_side",pl = v-128;
+                                break;
+                            case (v >= 64): // 90 flip
+                                updateStateWithTimeout(dev_id, 'flip90', true, {type: 'boolean'}, 300, false);
+                                topic +="/flip90_from"; pl = Math.floor((v-64) / 8);
+                                topic +="/flip90_to"; pl = v % 8;
+                                break;
+                        }
+                        break;
+
           //          case 'genAnalogInput':
           //              /*
          //               65285: 500, presentValue = rotation angel left < 0, rigth > 0
