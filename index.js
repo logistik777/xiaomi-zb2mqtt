@@ -145,11 +145,11 @@ shepherd.on('ind', function(msg) {
                 if (dev.modelId == 'lumi.sensor_86sw2\u0000Un') {
                         pl = undefined;
                         if (devClassId === 24321) { // left
-                        topic += "left_click";                                
+                        topic += "/left_click";                                
                             } else if (devClassId === 24322) { // right
-                        topic += "right_click";
+                        topic += "/right_click";
                             } else if (devClassId === 24323) { // both
-                        topic += "both_click";
+                        topic += "/both_click";
                             }
                          pl = "true";
                         }
@@ -159,53 +159,53 @@ shepherd.on('ind', function(msg) {
                             if (devClassId == 256 && (epId == 4 || epId == 2)) { // left
                                if (pl == 0) { // left press with state on
                                     topic += "/left_state";
-									  pl = "false";
+				    pl = "false";
                                 } else if (pl == 1) { // left press with state off
                                     topic += "/left_state";
-									pl = "true";
+				    pl = "true";
                                 }
                             }
                             if (devClassId == 256 && (epId == 5 || epId == 3)) { // right
                                 if (pl == 0) { // right press with state on
                                     topic += "/right_state";
-									pl = "false";
+				    pl = "false";
                                 } else if (pl == 1) { // right press with state off
                                    topic +="/right_state";
-								   pl = "true";
+				   pl = "true";
                                 }
                             }
                             if (devClassId == 0 && epId == 4) { // left pressed
                                 if (pl == 0) { // down
-                                    topic +="left_click";
-									pl = false;
+                                    topic +="/left_click";
+				    pl = "false";
                                   } else if (pl == 1) { // up
-                                    topic +="left_click";
-									pl = "true";
+                                    topic +="/left_click";
+				    pl = "true";
                                 } else if (pl == 2) { // double 
-                                   topic +="left_double_click";
-								   pl = "true";
+                                   topic +="/left_double_click";
+				   pl = "true";
                                 }
                             } else if (devClassId == 0 && epId == 5) { // right pressed
                                 if (pl == 0) { // down
                                     topic +="right_click";
-									pl = "false";
+				    pl = "false";
                                 } else if (pl == 1) { // up
                                     topic +="right_click";
-									pl = "true";
+				    pl = "true";
                                 } else if (pl == 2) { // double 
                                     topic +="right_double_click";
-									pl = "true";
+			 	    pl = "true";
                                 }
                             } else if (devClassId == 0 && epId == 6) { // both pressed
                                 if (pl == 0) { // down
                                     topic +="both_click";
-									pl = "false";
+					pl = "false";
                                } else if (pl == 1) { // up
                                     topic +="both_click";
-									pl = "true";
+					pl = "true";
                                 } else if (pl == 2) { // double 
                                     topic +="both_double_click";
-									pl = "true";
+					pl = "true";
                                }
                             }
                         }						
@@ -225,24 +225,24 @@ shepherd.on('ind', function(msg) {
 				case 'msOccupancySensing': // motion sensor
                         if (msg.data.data['occupancy'] == 1) {
                             topic += "/occupancy";
-							pl = "true";
+			    pl = "true";
                             if (timers[dev_id+'no_motion']) {
                                 clearInterval(timers[dev_id+'no_motion']);
                                 delete timers[dev_id+'no_motion'];
                             }
                             topic += "/no_motion";
-							pl = "0";
+			    pl = "0";
                             if (!timers[dev_id+'in_motion']) {
                                 timers[dev_id+'in_motion'] = setTimeout(function() {
                                     clearInterval(timers[dev_id+'in_motion']);
                                     delete timers[dev_id+'in_motion'];
                                     topic += "/occupancy";
-									pl = "false";
+				    pl = "false";
                                     if (!timers[dev_id+'no_motion']) {
                                         var counter = 1;
                                         timers[dev_id+'no_motion'] = setInterval(function() {
                                             topic =+ "/no_motion"; 
-											pl = counter;
+					    pl = counter;
                                             counter = counter + 1;
                                             if (counter > 1800) {  // cancel after 1800 sec
                                                 clearInterval(timers[dev_id+'no_motion']);
