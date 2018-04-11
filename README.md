@@ -8,7 +8,7 @@ integrate the cheap and nice Zigbee sensors and switches with whatever smart hom
 
 * Install
 ```sh  
-$ git clone https://github.com/AndrewLinden/xiaomi-zb2mqtt.git  
+$ git clone https://github.com/starkun/xiaomi-zb2mqtt.git  
 $ cd xiaomi-zb2mqtt  
 /xiaomi-zb2mqtt$ npm install  
 ```
