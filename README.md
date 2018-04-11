@@ -9,7 +9,7 @@ Look wiki for info, hardware and flash https://github.com/kirovilya/ioBroker.zig
 It is alpha version of driver!!! Properties names may changing!!!
 
 Tested with devices:
-
+```
 TRÅDFRI bulb (state, level, colortemp)
 QBCZ11LM Aqara Smart Socket ZiGBee (state, load power, in use)
 QBKG11LM Xiaomi Aqara Smart Wall Switch Line-Neutral Single-Button (click, state, load power)
@@ -27,6 +27,7 @@ WXKG11LM Aqara Smart Wireless Switch (click, double click, voltage)
 WXKG01LM Xiaomi Smart Wireless Switch (click, double click, triple, long click, voltage)
 RTCGQ11LM Aqara Human Body Sensor (illuminance, occupancy, voltage)
 RTCGQ01LM Xiaomi Mi Smart IR Human Body Sensor (illuminance, occupancy, voltage)
+```
 =================
 
 ### To run the bridge
