@@ -70,8 +70,8 @@ shepherd.on('ind', function(msg) {
 	     dev_id = msg.endpoints[0].device.ieeeAddr.substr(2);
              topic += dev_id;
              pl = 1;
-		var modelId = msg.endpoints[0].device.modelId;
-                if (modelId) modelId = modelId.replace("\u0000", "");
+		//var modelId = msg.endpoints[0].device.modelId;
+                //if (modelId) modelId = modelId.replace("\u0000", "");
 
             switch (msg.data.cid) {
 		case 'genBasic':
