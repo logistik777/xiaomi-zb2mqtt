@@ -5,7 +5,7 @@ var ZShepherd = require('zigbee-shepherd');
 var mqtt = require('mqtt')
 
 var client  = mqtt.connect('mqtt://localhost')
-
+var timers = {};
 var shepherd = new ZShepherd('/dev/ttyACM0', {
     net: {
         panId: 0x1a62
@@ -142,60 +142,73 @@ shepherd.on('ind', function(msg) {
                             }
                         }
                 // WXKG02LM
-                //if (dev.modelId == 'lumi.sensor_86sw2\u0000Un') {
-                //        pl = undefined;
-                //        if (devClassId === 24321) { // left
-                //        topic = 'left_click';                                
-                //            } else if (devClassId === 24322) { // right
-                //        topic = 'right_click';
-                //            } else if (devClassId === 24323) { // both
-                //        topic = 'both_click';
-                //            }
-                //         pl = "true";
-                //        }
+                if (dev.modelId == 'lumi.sensor_86sw2\u0000Un') {
+                        pl = undefined;
+                        if (devClassId === 24321) { // left
+                        topic += "left_click";                                
+                            } else if (devClassId === 24322) { // right
+                        topic += "right_click";
+                            } else if (devClassId === 24323) { // both
+                        topic += "both_click";
+                            }
+                         pl = "true";
+                        }
                 // QBKG03LM
-                //        if (dev.modelId == 'lumi.ctrl_neutral2') {
-                //           topic = null;
-                //            if (devClassId == 256 && (epId == 4 || epId == 2)) { // left
-                //               if (pl == 0) { // left press with state on
-                //                    updateState(dev_id, 'left_state', false, {type: 'boolean', write: true});
-                //                } else if (pl == 1) { // left press with state off
-                //                    updateState(dev_id, 'left_state', true, {type: 'boolean', write: true});
-                //                }
-                //            }
-                //            if (devClassId == 256 && (epId == 5 || epId == 3)) { // right
-                //                if (pl == 0) { // right press with state on
-                //                    updateState(dev_id, 'right_state', false, {type: 'boolean', write: true});
-                //                } else if (pl == 1) { // right press with state off
-                //                   updateState(dev_id, 'right_state', true, {type: 'boolean', write: true});
-                //                }
-                //            }
-                //            if (devClassId == 0 && epId == 4) { // left pressed
-                //                if (pl == 0) { // down
-                //                    updateState(dev_id, 'left_click', false, {type: 'boolean'});
-                //                } else if (pl == 1) { // up
-                //                    updateState(dev_id, 'left_click', true, {type: 'boolean'});
-                //                } else if (pl == 2) { // double 
-                //                   updateState(dev_id, 'left_double_click', true, {type: 'boolean'});
-                //                }
-                //            } else if (devClassId == 0 && epId == 5) { // right pressed
-                //                if (pl == 0) { // down
-                //                    updateState(dev_id, 'right_click', false, {type: 'boolean'});
-                //                } else if (pl == 1) { // up
-                //                    updateState(dev_id, 'right_click', true, {type: 'boolean'});
-                //                } else if (pl == 2) { // double 
-                //                    updateState(dev_id, 'right_double_click', true, {type: 'boolean'});
-                //                }
-                //            } else if (devClassId == 0 && epId == 6) { // both pressed
-                //                if (pl == 0) { // down
-                //                    updateState(dev_id, 'both_click', false, {type: 'boolean'});
-                //               } else if (pl == 1) { // up
-                //                    updateState(dev_id, 'both_click', true, {type: 'boolean'});
-                //                } else if (pl == 2) { // double 
-                //                    updateState(dev_id, 'both_double_click', true, {type: 'boolean'});
-                //               }
-                //            }
-                //        }						
+                        if (dev.modelId == 'lumi.ctrl_neutral2') {
+                           topic = null;
+                            if (devClassId == 256 && (epId == 4 || epId == 2)) { // left
+                               if (pl == 0) { // left press with state on
+                                    topic += "/left_state";
+									  pl = "false";
+                                } else if (pl == 1) { // left press with state off
+                                    topic += "/left_state";
+									pl = "true";
+                                }
+                            }
+                            if (devClassId == 256 && (epId == 5 || epId == 3)) { // right
+                                if (pl == 0) { // right press with state on
+                                    topic += "/right_state";
+									pl = "false";
+                                } else if (pl == 1) { // right press with state off
+                                   topic +="/right_state";
+								   pl = "true";
+                                }
+                            }
+                            if (devClassId == 0 && epId == 4) { // left pressed
+                                if (pl == 0) { // down
+                                    topic +="left_click";
+									pl = false;
+                                  } else if (pl == 1) { // up
+                                    topic +="left_click";
+									pl = "true";
+                                } else if (pl == 2) { // double 
+                                   topic +="left_double_click";
+								   pl = "true";
+                                }
+                            } else if (devClassId == 0 && epId == 5) { // right pressed
+                                if (pl == 0) { // down
+                                    topic +="right_click";
+									pl = "false";
+                                } else if (pl == 1) { // up
+                                    topic +="right_click";
+									pl = "true";
+                                } else if (pl == 2) { // double 
+                                    topic +="right_double_click";
+									pl = "true";
+                                }
+                            } else if (devClassId == 0 && epId == 6) { // both pressed
+                                if (pl == 0) { // down
+                                    topic +="both_click";
+									pl = "false";
+                               } else if (pl == 1) { // up
+                                    topic +="both_click";
+									pl = "true";
+                                } else if (pl == 2) { // double 
+                                    topic +="both_double_click";
+									pl = "true";
+                               }
+                            }
+                        }						
                     break;
                 case 'msTemperatureMeasurement':  // Aqara Temperature/Humidity
                     topic += "/temperature";
@@ -217,7 +230,8 @@ shepherd.on('ind', function(msg) {
                                 clearInterval(timers[dev_id+'no_motion']);
                                 delete timers[dev_id+'no_motion'];
                             }
-                            //topic += "/no_motion";
+                            topic += "/no_motion";
+							pl = "0";
                             if (!timers[dev_id+'in_motion']) {
                                 timers[dev_id+'in_motion'] = setTimeout(function() {
                                     clearInterval(timers[dev_id+'in_motion']);
@@ -227,7 +241,8 @@ shepherd.on('ind', function(msg) {
                                     if (!timers[dev_id+'no_motion']) {
                                         var counter = 1;
                                         timers[dev_id+'no_motion'] = setInterval(function() {
-                                            //updateState(dev_id, "no_motion", counter, {type: 'number', unit: 'sec'});
+                                            topic =+ "/no_motion"; 
+											pl = counter;
                                             counter = counter + 1;
                                             if (counter > 1800) {  // cancel after 1800 sec
                                                 clearInterval(timers[dev_id+'no_motion']);
@@ -304,7 +319,7 @@ shepherd.on('ind', function(msg) {
 		//						pl = "true";
          //                       //topic += "flip90_from";
 		//						//pl =((v-64) / 8);
-          //                      //updateState(dev_id, 'flip90_to', v % 8, {type: 'number'});
+          //                      //topic +="flip90_to', v % 8, {type: 'number'});
           //                      break;
           //              }
           //              break;
@@ -341,7 +356,7 @@ shepherd.on('ind', function(msg) {
          //               }
          //              if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
          //                   updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
-         //                  updateState(dev_id, 'in_use', (val > 0) ? true : false, {type: 'boolean'});
+         //                  topic +="in_use', (val > 0) ? true : false, {type: 'boolean'});
          //               }
          //               break;
             }
