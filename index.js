@@ -233,7 +233,7 @@ shepherd.on('ind', function(msg) {
                                     if (!timers[dev_id+'no_motion']) {
                                         var counter = 1;
                                         timers[dev_id+'no_motion'] = setInterval(function() {
-                                            updateState(dev_id, "no_motion", counter, {type: 'number', unit: 'sec'});
+                                            // updateState(dev_id, "no_motion", counter, {type: 'number', unit: 'sec'});
                                             counter = counter + 1;
                                             if (counter > 1800) {  // cancel after 1800 sec
                                                 clearInterval(timers[dev_id+'no_motion']);
