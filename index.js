@@ -12,7 +12,7 @@ var shepherd = new ZShepherd('/dev/ttyACM0', {
     }
 });
  function updateState(dev_id, name, value, common) { 
-    var topic = dev_id + '/' + name;
+    var topic =  'xiaomiZb/'+ dev_id + '/' + name;
 	 if (value != null) { // only publish message if we have not set payload to null
         console.log("MQTT Reporting to ", topic, " value ", value)
         client.publish(topic, value.toString());
@@ -45,7 +45,7 @@ shepherd.on('permitJoining', function(joinTimeLeft) {
 shepherd.on('ind', function(msg) {
     // debug('msg: ' + util.inspect(msg, false, null));
     var pl = null;
-    var topic = 'xiaomiZb/';
+    var topic = '';
     var dev, dev_id, devClassId, epId;
 
     switch (msg.type) {
@@ -409,14 +409,7 @@ shepherd.on('ind', function(msg) {
             break;
     }
 
-  //function updateState(dev_id, name, value, common) { 
-  //  var topic = dev_id + '/' + name;
-  //  if (value != null) { // only publish message if we have not set payload to null
-  //      console.log("MQTT Reporting to ", topic, " value ", value)
-  //      client.publish(topic, value.toString());
-  //  }
-//}
-	
+
 });
 client.on('connect', function() {
     client.publish('xiaomiZb', 'Bridge online')
