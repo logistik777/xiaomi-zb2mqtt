@@ -13,6 +13,11 @@ var shepherd = new ZShepherd('/dev/ttyACM0', {
 });
  function updateState(dev_id, name, value, common) { 
     var topic = dev_id + '/' + name;
+	 if (value != null) { // only publish message if we have not set payload to null
+        console.log("MQTT Reporting to ", topic, " value ", value)
+        client.publish(topic, value.toString());
+    }
+}
 function updateStateWithTimeout(dev_id, name, value, common, timeout, outValue) {
     updateState(dev_id, name, value, common);
     setTimeout(function () {
@@ -406,11 +411,11 @@ shepherd.on('ind', function(msg) {
 
   //function updateState(dev_id, name, value, common) { 
   //  var topic = dev_id + '/' + name;
-    if (value != null) { // only publish message if we have not set payload to null
-        console.log("MQTT Reporting to ", topic, " value ", value)
-        client.publish(topic, value.toString());
-    }
-}
+  //  if (value != null) { // only publish message if we have not set payload to null
+  //      console.log("MQTT Reporting to ", topic, " value ", value)
+  //      client.publish(topic, value.toString());
+  //  }
+//}
 	
 });
 client.on('connect', function() {
