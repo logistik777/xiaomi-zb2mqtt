@@ -12,6 +12,13 @@ var shepherd = new ZShepherd('/dev/ttyACM0', {
     }
 });
 
+function updateStateWithTimeout(dev_id, name, value, common, timeout, outValue) {
+    updateState(dev_id, name, value, common);
+    setTimeout(function () {
+        updateState(dev_id, name, outValue, common);
+    }, timeout);
+}
+
 shepherd.on('ready', function() {
     console.log('Server is ready. Current devices:');
     shepherd.list().forEach(function(dev){
@@ -92,124 +99,111 @@ shepherd.on('ind', function(msg) {
                 case 'genOnOff':  // various switches
                     topic += '/' + msg.endpoints[0].epId;
                     pl = msg.data.data['onOff'];
-				// IKEA TRADFRI bulb and FLOALT panel WS
+		// IKEA TRADFRI bulb and FLOALT panel WS
                 if (dev.modelId && (dev.modelId.indexOf('TRADFRI bulb') !== -1 ||
                     dev.modelId.indexOf('FLOALT panel WS') !== -1)) {
                      pl = undefined;
                         if (msg.data.data['onOff'] == 1) {
                         topic += "/state";
-						pl = "true";
+			pl = "true";
                         } else {
                         topic += "/state";
-						pl = "false";
+			pl = "false";
                             }
                         }
-			    if (dev.modelId && dev.modelId.indexOf('lumi.sensor_magnet') >= 0) {
-                            pl = undefined;
-                            if (msg.data.data['onOff'] == 1) {
-                                pl = "true";
+	        if (dev.modelId && dev.modelId.indexOf('lumi.sensor_magnet') >= 0) {
+                       pl = undefined;
+                         if (msg.data.data['onOff'] == 1) {
+                         pl = "true";
                             } else {
-                                pl = "false";
+                         pl = "false";
                             }
                         }
-				if (dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
+		if (dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
                       pl = undefined;
                         if (msg.data.data['onOff'] == 1) {
                         topic += "/state";
-					    pl = "true";
+		        pl = "true";
                             } else {
                         topic += "/state";
-						pl = "false";
+			pl = "false";
                             }
                         }
                 if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_ln1') !== -1) {
                         if (msg.data.data['onOff'] == 1) {
                         topic += "/state";
-					    pl = "true";        
+	                pl = "true";        
                             } else {
                         topic += "/state";
-						pl = "false";
+			pl = "false";
                             }
                         }
-				if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
+		if (dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
                         pl = undefined;
                         if (msg.data.data['onOff'] == 1) {
                         topic += "/state";
-					    pl = "true";
+			pl = "true";
                             } else {
                         topic += "/state";
-						pl = "false";
+			pl = "false";
                             }
                         }
-                // WXKG02LM
-                if (dev.modelId == 'lumi.sensor_86sw2\u0000Un') {
-                        pl = undefined;
-                        if (devClassId === 24321) { // left
-                        topic += "/left_click";                                
+                 // WXKG02LM
+                        if (dev.modelId == 'lumi.sensor_86sw2\u0000Un') {
+                            pl = undefined;
+                            if (devClassId === 24321) { // left
+                                topic = 'left_click';                                
                             } else if (devClassId === 24322) { // right
-                        topic += "/right_click";
+                                topic = 'right_click';
                             } else if (devClassId === 24323) { // both
-                        topic += "/both_click";
+                                topic = 'both_click';
                             }
-                         pl = "true";
+                            updateStateWithTimeout(dev_id, topic, true, {type: 'boolean'}, 300, false);
                         }
-                // QBKG03LM
+                 // QBKG03LM
                         if (dev.modelId == 'lumi.ctrl_neutral2') {
-                           topic = null;
+                            topic = null;
                             if (devClassId == 256 && (epId == 4 || epId == 2)) { // left
-                               if (pl == 0) { // left press with state on
-                                    topic += "/left_state";
-				    pl = "false";
+                                if (pl == 0) { // left press with state on
+                                    updateState(dev_id, 'left_state', false, {type: 'boolean', write: true});
                                 } else if (pl == 1) { // left press with state off
-                                    topic += "/left_state";
-				    pl = "true";
+                                    updateState(dev_id, 'left_state', true, {type: 'boolean', write: true});
                                 }
                             }
                             if (devClassId == 256 && (epId == 5 || epId == 3)) { // right
                                 if (pl == 0) { // right press with state on
-                                    topic += "/right_state";
-				    pl = "false";
+                                    updateState(dev_id, 'right_state', false, {type: 'boolean', write: true});
                                 } else if (pl == 1) { // right press with state off
-                                   topic +="/right_state";
-				   pl = "true";
+                                    updateState(dev_id, 'right_state', true, {type: 'boolean', write: true});
                                 }
                             }
                             if (devClassId == 0 && epId == 4) { // left pressed
                                 if (pl == 0) { // down
-                                    topic +="/left_click";
-				    pl = "false";
-                                  } else if (pl == 1) { // up
-                                    topic +="/left_click";
-				    pl = "true";
+                                    updateState(dev_id, 'left_click', false, {type: 'boolean'});
+                                } else if (pl == 1) { // up
+                                    updateState(dev_id, 'left_click', true, {type: 'boolean'});
                                 } else if (pl == 2) { // double 
-                                   topic +="/left_double_click";
-				   pl = "true";
+                                    updateState(dev_id, 'left_double_click', true, {type: 'boolean'});
                                 }
                             } else if (devClassId == 0 && epId == 5) { // right pressed
                                 if (pl == 0) { // down
-                                    topic +="/right_click";
-				    pl = "false";
+                                    updateState(dev_id, 'right_click', false, {type: 'boolean'});
                                 } else if (pl == 1) { // up
-                                    topic +="/right_click";
-				    pl = "true";
+                                    updateState(dev_id, 'right_click', true, {type: 'boolean'});
                                 } else if (pl == 2) { // double 
-                                    topic +="/right_double_click";
-			 	    pl = "true";
+                                    updateState(dev_id, 'right_double_click', true, {type: 'boolean'});
                                 }
                             } else if (devClassId == 0 && epId == 6) { // both pressed
                                 if (pl == 0) { // down
-                                    topic +="/both_click";
-					pl = "false";
-                               } else if (pl == 1) { // up
-                                    topic +="/both_click";
-					pl = "true";
+                                    updateState(dev_id, 'both_click', false, {type: 'boolean'});
+                                } else if (pl == 1) { // up
+                                    updateState(dev_id, 'both_click', true, {type: 'boolean'});
                                 } else if (pl == 2) { // double 
-                                    topic +="/both_double_click";
-					pl = "true";
-                               }
+                                    updateState(dev_id, 'both_double_click', true, {type: 'boolean'});
+                                }
                             }
-                        }						
-                    break;
+                        }
+		break;
                 case 'msTemperatureMeasurement':  // Aqara Temperature/Humidity
                     topic += "/temperature";
                     pl = parseFloat(msg.data.data['measuredValue']) / 100.0;
@@ -222,27 +216,23 @@ shepherd.on('ind', function(msg) {
                     topic += "/pressure";
                     pl = parseFloat(msg.data.data['16']) / 10.0;
                     break;
-		case 'msOccupancySensing': // motion sensor
+		 case 'msOccupancySensing': // motion sensor
                         if (msg.data.data['occupancy'] == 1) {
-                            topic += "/occupancy";
-			    pl = "true";
+                            updateState(dev_id, "occupancy", true, {type: 'boolean'});
                             if (timers[dev_id+'no_motion']) {
                                 clearInterval(timers[dev_id+'no_motion']);
                                 delete timers[dev_id+'no_motion'];
                             }
-                            topic += "/no_motion";
-			    pl = "0";
+                            updateState(dev_id, "no_motion", 0, {type: 'number', unit: 'sec'});
                             if (!timers[dev_id+'in_motion']) {
                                 timers[dev_id+'in_motion'] = setTimeout(function() {
                                     clearInterval(timers[dev_id+'in_motion']);
                                     delete timers[dev_id+'in_motion'];
-                                    topic += "/occupancy";
-				    pl = "false";
+                                    updateState(dev_id, "occupancy", false, {type: 'boolean'});
                                     if (!timers[dev_id+'no_motion']) {
                                         var counter = 1;
                                         timers[dev_id+'no_motion'] = setInterval(function() {
-                                            topic =+ "/no_motion"; 
-					    pl = counter;
+                                            updateState(dev_id, "no_motion", counter, {type: 'number', unit: 'sec'});
                                             counter = counter + 1;
                                             if (counter > 1800) {  // cancel after 1800 sec
                                                 clearInterval(timers[dev_id+'no_motion']);
@@ -256,12 +246,12 @@ shepherd.on('ind', function(msg) {
                                 delete timers[dev_id+'in_motion'];
                             }
                         }
-                        break;
+		break;
                 case 'msIlluminanceMeasurement':
                         topic = "illuminance";
                         pl = msg.data.data['measuredValue'];
                         break;
-                case 'genMultistateInput':
+                 case 'genMultistateInput':
                         /*
                             +---+
                             | 2 |
@@ -272,16 +262,15 @@ shepherd.on('ind', function(msg) {
                             +---+
                             | 3 |
                             +---+
-
                         Side 5 is with the MI logo, side 3 contains the battery door.
                         presentValue = 0 = shake
                         presentValue = 2 = wakeup 
                         presentValue = 3 = fly/fall
-                        presentValue = y + x * 8 + 64 = 90ยบ Flip from side x on top to side y on top
-                        presentValue = x + 128 = 180ยบ flip to side x on top
+                        presentValue = y + x * 8 + 64 = 90º Flip from side x on top to side y on top
+                        presentValue = x + 128 = 180º flip to side x on top
                         presentValue = x + 256 = push/slide cube while side x is on top
                         presentValue = x + 512 = double tap while side x is on top
-                       */
+                        */
                         var v = msg.data.data['presentValue'];
                         switch (true) {
                             case (v == 0):
@@ -295,60 +284,56 @@ shepherd.on('ind', function(msg) {
                                 break;
                             case (v >= 512): // double tap
                                 updateStateWithTimeout(dev_id, 'tap', true, {type: 'boolean'}, 300, false);
-                                topic +="/tap_side"; pl = v-512;
+                                updateState(dev_id, 'tap_side', v-512, {type: 'number'});
                                 break;
                             case (v >= 256): // slide
                                 updateStateWithTimeout(dev_id, 'slide', true, {type: 'boolean'}, 300, false);
-                                topic +="/slide_side"; pl = v-256;
+                                updateState(dev_id, 'slide_side', v-256, {type: 'number'});
                                 break;
                             case (v >= 128): // 180 flip
                                 updateStateWithTimeout(dev_id, 'flip180', true, {type: 'boolean'}, 300, false);
-                                topic +="/flip180_side",pl = v-128;
+                                updateState(dev_id, 'flip180_side', v-128, {type: 'number'});
                                 break;
                             case (v >= 64): // 90 flip
                                 updateStateWithTimeout(dev_id, 'flip90', true, {type: 'boolean'}, 300, false);
-                                topic +="/flip90_from"; pl = Math.floor((v-64) / 8);
-                                topic +="/flip90_to"; pl = v % 8;
+                                updateState(dev_id, 'flip90_from', Math.floor((v-64) / 8), {type: 'number'});
+                                updateState(dev_id, 'flip90_to', v % 8, {type: 'number'});
                                 break;
                         }
                         break;
-
-          //          case 'genAnalogInput':
-          //              /*
-         //               65285: 500, presentValue = rotation angel left < 0, rigth > 0
-         //               65285: 360, presentValue = ? angel
-         //               65285: 110, presentValue = ? angel 
-         //               65285: 420, presentValue = ? angel 
-         //               65285: 320, presentValue = ? angel 
-         //               65285: 330, presentValue = ? angel 
-        //                */
-        //                if (msg.data.data['65285'] == 500) {
-        //                    var v = msg.data.data['presentValue'];
-        //                    topic += "/rotate";
-		//					pl = "true";
-         //                   //topic +="/rotate_angel", v, {type: 'number', unit: 'ยบ'});
-         //                   if (v < 0) {
-         //                       topic +="/rotate_dir";
-		//						pl = "left";
-         //                
-         //                   } else {
-         //                       topic += "/rotate_dir";
-		//						pl = "right";
-          //                  }
-          //              }
-          //              var val = msg.data.data['presentValue'];
-          //              if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
-          //                  topic += "/load_power";
-         //                   topic += "/in_use", (val > 0) ? true : false, {type: 'boolean'});
-         //               }
-          //              if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.ctrl_ln') !== -1) {
-         //                   updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
-         //               }
-         //              if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
-         //                   updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
-         //                  topic +="in_use', (val > 0) ? true : false, {type: 'boolean'});
-         //               }
-         //               break;
+                    case 'genAnalogInput':
+                        /*
+                        65285: 500, presentValue = rotation angel left < 0, rigth > 0
+                        65285: 360, presentValue = ? angel
+                        65285: 110, presentValue = ? angel 
+                        65285: 420, presentValue = ? angel 
+                        65285: 320, presentValue = ? angel 
+                        65285: 330, presentValue = ? angel 
+                        */
+                        if (msg.data.data['65285'] == 500) {
+                            var v = msg.data.data['presentValue'];
+                            updateStateWithTimeout(dev_id, 'rotate', true, {type: 'boolean'}, 300, false);
+                            updateState(dev_id, 'rotate_angel', v, {type: 'number', unit: 'º'});
+                            if (v < 0) {
+                                updateState(dev_id, 'rotate_dir', 'left');
+                                
+                            } else {
+                                updateState(dev_id, 'rotate_dir', 'right');
+                            }
+                        }
+                        var val = msg.data.data['presentValue'];
+                        if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.plug') !== -1) {
+                            updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
+                            updateState(dev_id, 'in_use', (val > 0) ? true : false, {type: 'boolean'});
+                        }
+                        if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.ctrl_ln') !== -1) {
+                            updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
+                        }
+                        if (val != undefined && dev.modelId && dev.modelId.indexOf('lumi.ctrl_86plug') !== -1) {
+                            updateState(dev_id, "load_power", val, {type: 'number', unit: 'W'});
+                            updateState(dev_id, 'in_use', (val > 0) ? true : false, {type: 'boolean'});
+                        }
+	    break;
             }
 
 		switch (true) {
@@ -418,10 +403,14 @@ shepherd.on('ind', function(msg) {
             break;
     }
 
-    if (pl != null) { // only publish message if we have not set payload to null
-        console.log("MQTT Reporting to ", topic, " value ", pl)
-        client.publish(topic, pl.toString());
+  function updateState(dev_id, name, value, common) { 
+    var topic = dev_id + '/' + name;
+    if (value != null) { // only publish message if we have not set payload to null
+        console.log("MQTT Reporting to ", topic, " value ", value)
+        client.publish(topic, value.toString());
     }
+}
+	
 });
 client.on('connect', function() {
     client.publish('xiaomiZb', 'Bridge online')
