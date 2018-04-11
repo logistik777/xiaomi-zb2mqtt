@@ -1,8 +1,33 @@
 # xiaomi-zb2mqtt
-Xiaomi Zigbee to MQTT bridge using zigbee-shepherd.
 
-This little script allows you to use Xiaomi Zigbee sensors and switches **without** Xiaomi's gateway. It bridges the events sent from the sensors to MQTT. You can 
-integrate the cheap and nice Zigbee sensors and switches with whatever smart home infrastructure you are using.
+Mqtt driver for Xiaomi (and other) devices via cc2531/cc2530
+
+remake of ioBroker Driver by https://github.com/kirovilya 
+
+Look wiki for info, hardware and flash https://github.com/kirovilya/ioBroker.zigbee/wiki (russian lang).
+
+It is alpha version of driver!!! Properties names may changing!!!
+
+Tested with devices:
+
+TRÅDFRI bulb (state, level, colortemp)
+QBCZ11LM Aqara Smart Socket ZiGBee (state, load power, in use)
+QBKG11LM Xiaomi Aqara Smart Wall Switch Line-Neutral Single-Button (click, state, load power)
+JTYJ-GD-01LM/BW Xiaomi Smoke Alarm (detected, voltage)
+ZNCZ02LM Xiaomi Smart Power Plug (state, load power, in use)
+QBKG03LM Xiaomi Aqara Light Switch (left is on, right is on, click left, click right, click both)
+MFKZQ01LM Xiaomi Magic Cube Controller (shake, slide, flip90, flip180, tap, rotate, fall, wakeup, voltage)
+SJCGQ11LM Aqara Smart Water Sensor (detected, voltage)
+WXKG02LM Aqara Smart Light Switch Wireless (click left, click right, click both, voltage)
+WSDCGQ11LM Aqara Temperature Humidity Sensor (humidity, pressure, temperature, voltage)
+WSDCGQ01LM Aqara Temperature Humidity Sensor (humidity, temperature, voltage)
+MCCGQ11LM Aqara Window Door Sensor (contact, voltage)
+MCCGQ01LM Xiaomi Mi Smart Door/Window Sensor (contact, voltage)
+WXKG11LM Aqara Smart Wireless Switch (click, double click, voltage)
+WXKG01LM Xiaomi Smart Wireless Switch (click, double click, triple, long click, voltage)
+RTCGQ11LM Aqara Human Body Sensor (illuminance, occupancy, voltage)
+RTCGQ01LM Xiaomi Mi Smart IR Human Body Sensor (illuminance, occupancy, voltage)
+=================
 
 ### To run the bridge
 
@@ -23,12 +48,6 @@ $ cd xiaomi-zb2mqtt
 ```sh  
 /xiaomi-zb2mqtt$ DEBUG=* node index.js  
 ```
-### Supports
-* WXKG01LM - Single, double, triple, quad and "more than five" click. Push and hold long click. 
-* WXKG02LM - Left, right and both click
-* WSDCGQ11LM - Aqara Temperature Hudimity sensor with Temperature, Humidity and Pressure
-* RTCGQ11LM - Xiaomi Smart Home Aqara Human Body Sensor
-* MCCGQ11LM - Xiaomi Aqara Window Door Sensor
 
 ### Notes
 * You need CC2531 USB stick flashed with CC2531ZNP-Pro-Secure_LinkKeyJoin.hex from here: https://github.com/mtornblad/zstack-1.2.2a.44539/tree/master/CC2531
