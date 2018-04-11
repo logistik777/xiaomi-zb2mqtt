@@ -222,7 +222,7 @@ shepherd.on('ind', function(msg) {
                     topic += "/pressure";
                     pl = parseFloat(msg.data.data['16']) / 10.0;
                     break;
-				case 'msOccupancySensing': // motion sensor
+		case 'msOccupancySensing': // motion sensor
                         if (msg.data.data['occupancy'] == 1) {
                             topic += "/occupancy";
 			    pl = "true";
@@ -318,7 +318,7 @@ shepherd.on('ind', function(msg) {
          //                       topic += "/flip90";
 		//						pl = "true";
          //                       //topic += "flip90_from";
-		//						//pl =((v-64) / 8);
+		//						//pl = Math.floor((v-64) / 8);
           //                      //topic +="flip90_to', v % 8, {type: 'number'});
           //                      break;
           //              }
