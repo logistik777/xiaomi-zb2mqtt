@@ -39,7 +39,11 @@ $ cd xiaomi-zb2mqtt
 /xiaomi-zb2mqtt$ npm install  
 ```
 * Configuration: for the moment you have to edit index.js and set your serial port and mqtt broker.
-
+```
+var client  = mqtt.connect('mqtt://localhost') //write your mqtt broker adress (ex. mqtt://192.168.0.1:1883,localhost)
+var timers = {};
+var shepherd = new ZShepherd('/dev/ttyACM0',  //write adress of USB device cc25xx
+```
 * Run it
 ```sh  
 /xiaomi-zb2mqtt$ node index.js  
