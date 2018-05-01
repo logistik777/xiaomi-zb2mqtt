@@ -105,13 +105,15 @@ shepherd.on('ind', function(msg) {
                             updateState(dev_id, 'voltage', batteryData / 1000, {type: 'number', unit: 'v'});  // voltage
                             updateState(dev_id, 'battery', (batteryData - 2700) / 5, {type: 'number', unit: '%'});  // percent
                         }
-			var swstate;
-			// switch state
-     		  	if (msg.data.data['61440']) {
-          		    swstate =msg.data.data['onOff'] === 1 ? "ON" : "OFF";
-               		}
-			    
-			    
+		       var swstate;
+      			 // switch state
+       			 if (msg.data.data['61440']) {
+                   	 if (msg.data.data['onOff'] == 1) {
+                                updateState(dev_id, 'state', on, {type: 'string'});
+                            } else {
+                                updateState(dev_id, 'state', off, {type: 'string'});
+                            }
+			 }
                         break;
                 case 'genOnOff':  // various switches
                     topic += '/' + msg.endpoints[0].epId;
